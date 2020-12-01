@@ -1,0 +1,7 @@
+executable              = Analyse_mTower_Run1250_combined.sh
+arguments               = $(ClusterID) $(ProcId)
+output                  = ./logs/EventSelection.$(ClusterID).$(ProcId).out
+error                   = ./logs/EventSelection.$(ClusterID).$(ProcId).err
+log                     = ./logs/EventSelection.$(ClusterID).log
++JobFlavour = "tomorrow"
+queue 1
