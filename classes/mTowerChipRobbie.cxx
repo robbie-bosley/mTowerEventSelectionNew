@@ -1,5 +1,5 @@
-#include "mTowerChip.h"
-#include "mTowerCluster.h"
+#include "mTowerChipRobbie.h"
+#include "mTowerClusterRobbie.h"
 #include "mTowerHit.h"
 #include "TObjArray.h"
 #include <iostream>
@@ -7,17 +7,17 @@
 using namespace std;
 
 
-ClassImp(mTowerChip)
+ClassImp(mTowerChipRobbie)
 
 //default constructor
-mTowerChip::mTowerChip()
+mTowerChipRobbie::mTowerChipRobbie()
 {
   hits = new TObjArray();
   clusters = new TObjArray();
   lane = -1;
 }
 
-mTowerChip::mTowerChip(int l)
+mTowerChipRobbie::mTowerChipRobbie(int l)
 {
   hits = new TObjArray();
   clusters = new TObjArray();
@@ -26,21 +26,21 @@ mTowerChip::mTowerChip(int l)
 
 
 //destructor
-mTowerChip::~mTowerChip()
+mTowerChipRobbie::~mTowerChipRobbie()
 {
   delete hits;
   delete clusters;
 }
 
 //adding a hit to the chip
-void mTowerChip::AddHit(mTowerHit* hit)
+void mTowerChipRobbie::AddHit(mTowerHit* hit)
 {
   hits->Add(hit);
 }
 
 
 //reset the status of all hits in the chip
-void mTowerChip::ResetHitStatus()
+void mTowerChipRobbie::ResetHitStatus()
 {
   for (int h = 0;h < hits->GetEntries(); h++)
     {
@@ -50,7 +50,7 @@ void mTowerChip::ResetHitStatus()
 }
 
 //find the neighbours of a hit and add them to a TObjArray
-int mTowerChip::findNeighbours(mTowerHit* currentHit, TObjArray* neighbours)
+int mTowerChipRobbie::findNeighbours(mTowerHit* currentHit, TObjArray* neighbours)
 {
   int nNeighbours = neighbours->GetEntries();
   int dist = 2;
@@ -77,7 +77,7 @@ int mTowerChip::findNeighbours(mTowerHit* currentHit, TObjArray* neighbours)
 
 
 //cluster all hits in this chip
- int mTowerChip::Clusterize()
+ int mTowerChipRobbie::Clusterize()
  {
    // use DBSCAN method of clustering
    // https://en.wikipedia.org/wiki/DBSCAN
@@ -142,7 +142,7 @@ int mTowerChip::findNeighbours(mTowerHit* currentHit, TObjArray* neighbours)
      {
        for (int c = 1;c<nClusters+1;c++)
 	 {
-	   mTowerCluster* currentCluster = new mTowerCluster(c);
+	   mTowerClusterRobbie* currentCluster = new mTowerClusterRobbie(c);
 	   currentCluster->setLane(lane);
 	   for (int h = 0;h < hits->GetEntries(); h++)
 	     {
@@ -159,7 +159,7 @@ int mTowerChip::findNeighbours(mTowerHit* currentHit, TObjArray* neighbours)
 
        /*for (int c = 1;c<nClusters+1;c++)
 	 {
-	   mTowerCluster* currentCluster = (mTowerCluster*) clusters->At(c-1);
+	   mTowerClusterRobbie* currentCluster = (mTowerClusterRobbie*) clusters->At(c-1);
 	   int nHitsInCluster = currentCluster->getNHits();
 	   int clusterId = currentCluster->getId();
 	   cout<<"Cluster "<<clusterId<<" has "<<nHitsInCluster<<" hits"<<endl;

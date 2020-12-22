@@ -1,20 +1,20 @@
-#include "mTowerCluster.h"
+#include "mTowerClusterRobbie.h"
 #include "mTowerHit.h"
 #include "TObjArray.h"
 #include <iostream>
 
 using namespace std;
 
-ClassImp(mTowerCluster)
+ClassImp(mTowerClusterRobbie)
 
 //default constructor
-mTowerCluster::mTowerCluster()
+mTowerClusterRobbie::mTowerClusterRobbie()
 {
   id = 0;
   hits = new TObjArray();
 }
 
-mTowerCluster::mTowerCluster(int i)
+mTowerClusterRobbie::mTowerClusterRobbie(int i)
 {
   id = i;
   hits = new TObjArray();
@@ -22,19 +22,19 @@ mTowerCluster::mTowerCluster(int i)
 
 
 //destructor
-mTowerCluster::~mTowerCluster()
+mTowerClusterRobbie::~mTowerClusterRobbie()
 {
   delete hits;
 }
 
 //adding a hit to the cluster
-void mTowerCluster::AddHit(mTowerHit* hit)
+void mTowerClusterRobbie::AddHit(mTowerHit* hit)
 {
   hits->Add(hit);
 }
 
 //merging another cluster with this cluster
-void mTowerCluster::AddCluster(mTowerCluster* cluster)
+void mTowerClusterRobbie::AddCluster(mTowerClusterRobbie* cluster)
 {
   //NOT TESTED YET
   cout<<"Merging clusters: "<<getNHits()<<" hits and "<<cluster->getHits()<<endl;
@@ -48,7 +48,7 @@ void mTowerCluster::AddCluster(mTowerCluster* cluster)
 }
 
 //Calculating the mean position of the cluster
-double mTowerCluster::getMeanRow()
+double mTowerClusterRobbie::getMeanRow()
 {
   double meanRow = 0.0;
   int nHits = getNHits();
@@ -63,7 +63,7 @@ double mTowerCluster::getMeanRow()
   return meanRow;
 }
 
-double mTowerCluster::getMeanColumn()
+double mTowerClusterRobbie::getMeanColumn()
 {
   double meanColumn = 0.0;
   int nHits = getNHits();

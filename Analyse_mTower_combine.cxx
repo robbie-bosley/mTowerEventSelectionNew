@@ -22,9 +22,9 @@
 
 
 #include "classes/mTowerHit.h"
-#include "classes/mTowerCluster.h"
+#include "classes/mTowerClusterRobbie.h"
 #include "classes/mTowerEvent.h"
-#include "classes/mTowerChip.h"
+#include "classes/mTowerChipRobbie.h"
 
 //#include "/eos/project/m/mtower/public/hiroki/11_id_pileup/fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -51,7 +51,7 @@ using namespace fastjet;
 using namespace ROOT::Math;
 
 //conversion tables
-const std::map< Int_t, Int_t > chipid2lane_lut = {
+const std::map< Int_t, Int_t > chipid2lanerobbie_lut = {
   { 0,40},{ 1,39},{ 2,42},{ 3,41},{ 4,44},{ 5,43},{ 6,46},{ 7,45},
   { 8,48},{ 9,47},{10,50},{11,49},{12,52},{13,51},{14,54},{15,53},
   {16,38},{17,55},{18,36},{19,37},{20,32},{21,35},{22,34},{23,33},
@@ -60,7 +60,7 @@ const std::map< Int_t, Int_t > chipid2lane_lut = {
   {40,62},{41,79},{42,60},{43,61},{44,56},{45,59},{46,58},{47,57}
 };
 
-const std::map< Int_t, Int_t > lane2chipid_lut = {
+const std::map< Int_t, Int_t > lane2chipidrobbie_lut = {
   {40, 0},{39, 1},{42, 2},{41, 3},{44, 4},{43, 5},{46, 6},{45, 7},
   {48, 8},{47, 9},{50,10},{49,11},{52,12},{51,13},{54,14},{53,15},
   {38,16},{55,17},{36,18},{37,19},{32,20},{35,21},{34,22},{33,23},
@@ -69,7 +69,7 @@ const std::map< Int_t, Int_t > lane2chipid_lut = {
   {62,40},{79,41},{60,42},{61,43},{56,44},{59,45},{58,46},{57,47}
 };
 
-const std::map< Int_t, Int_t > chipid2layer_lut = {
+const std::map< Int_t, Int_t > chipid2layerrobbie_lut = {
   { 0,22},{ 1,22},{ 2,20},{ 3,20},{ 4,18},{ 5,18},{ 6,16},{ 7,16},
   { 8,14},{ 9,14},{10,12},{11,12},{12,10},{13,10},{14, 8},{15, 8},
   {16, 6},{17, 6},{18, 4},{19, 4},{20, 0},{21, 0},{22, 2},{23, 2},
@@ -78,7 +78,7 @@ const std::map< Int_t, Int_t > chipid2layer_lut = {
   {40, 7},{41, 7},{42, 5},{43, 5},{44, 1},{45, 1},{46, 3},{47, 3}
 };
 
-const std::map< Int_t, Int_t > lane2layer_lut = {
+const std::map< Int_t, Int_t > lane2layerrobbie_lut = {
   {40,22},{39,22},{42,20},{41,20},{44,18},{43,18},{46,16},{45,16},
   {48,14},{47,14},{50,12},{49,12},{52,10},{51,10},{54, 8},{53, 8},
   {38, 6},{55, 6},{36, 4},{37, 4},{32, 0},{35, 0},{34, 2},{33, 2},
@@ -87,7 +87,7 @@ const std::map< Int_t, Int_t > lane2layer_lut = {
   {62, 7},{79, 7},{60, 5},{61, 5},{56, 1},{59, 1},{58, 3},{57, 3}
 };
 
-const std::map<int,bool> layer2isInv_lut = {
+const std::map<int,bool> layer2isInvrobbie_lut = {
   { 0, kFALSE}, { 1, kTRUE}, { 2, kFALSE}, { 3, kTRUE}, 
   { 4, kFALSE}, { 5, kTRUE}, { 6, kFALSE}, { 7, kTRUE}, 
   { 8, kFALSE}, { 9, kTRUE}, {10, kFALSE}, {11, kTRUE}, 
@@ -97,9 +97,9 @@ const std::map<int,bool> layer2isInv_lut = {
 };
 
 bool IsLeftChip(int lane){
-  int layerNr = lane2layer_lut.at(lane);
-  bool isInv  = layer2isInv_lut.at(layerNr);
-  int chipid = lane2chipid_lut.at(lane); 
+  int layerNr = lane2layerrobbie_lut.at(lane);
+  bool isInv  = layer2isInvrobbie_lut.at(layerNr);
+  int chipid = lane2chipidrobbie_lut.at(lane); 
   bool isOdd;
   if (chipid%2 == 1){ isOdd = kTRUE;}
   else {isOdd = kFALSE;}
@@ -109,7 +109,7 @@ bool IsLeftChip(int lane){
 
 //for hit maps
 int lane2padhitmap(int lane){
-  int layerNr = lane2layer_lut.at(lane);
+  int layerNr = lane2layerrobbie_lut.at(lane);
   bool isLeft = IsLeftChip(lane);
   
   int padid;
@@ -124,7 +124,7 @@ int lane2padhitmap(int lane){
 
 //for hit maps
 int lane2padoccupancy(int lane){
-  int layerNr = lane2layer_lut.at(lane);
+  int layerNr = lane2layerrobbie_lut.at(lane);
   int padid = layerNr+1;
   return padid; 
 }
@@ -154,7 +154,7 @@ void Analyse_mTower(int run)
   //USER:ROBBIE
   //-------------------------------------------------------
   //macro to read the mTower TB data
-  //using event classes: mTowerEvent, mTowerHit, mTowerChip, mTowerCluster
+  //using event classes: mTowerEvent, mTowerHit, mTowerChipRobbie, mTowerClusterRobbie
   //detailed code description can be found in the bachelor thesis of Aart van Bochove
   //authors: N. van der Kolk, A. van Bochove, R Bosley
   //-------------------------------------------------------
@@ -166,6 +166,13 @@ void Analyse_mTower(int run)
   TString fileLocationOutputTree = "./";
   TString fileLocation = "/eos/project/m/mtower/Data/Data_TB_February_2020/mTower_Data_DESY_Feb_2020_raw1/"; //The location of the selected data
   TString maskingFileLocation = "/eos/project/m/mtower/public/analysis_fw_sample_HY/data/hotpixel_TB/"; //The location of the masking .txt files
+
+  //USER:HIROKI
+  TString s_thickness 	= "/eos/project/m/mtower/public/hiroki/00_util/setting/module_thickness_Feb_2020.txt"     ;
+  TString s_alignment 	= "/eos/project/m/mtower/public/hiroki/00_util/setting/chip_correction_Oct_2020.txt"      ;
+  TString s_inclination	= "/eos/project/m/mtower/public/hiroki/00_util/setting/detector_inclination_Oct_2020.txt" ;
+
+  //USER:ROBBIE
  
   bool UND = false; //is true if an earlier made TTree is used, so if not using the original data.
   bool testing = false; //Testing outputfile, run over small amount of events.
@@ -276,15 +283,6 @@ void Analyse_mTower(int run)
   auto paralign = mTowerAlignment::get_sensor_position( s_alignment.Data() );
   auto parinc   = mTowerInclination::get_inclination_function( s_inclination.Data(), energy );
 
-  //############################################################                                                                                                                                 
-  // get pixels to be masked                                                                                                                                                                    
-  //############################################################                                                                                                                                   
-  TString s_file, s_ext, s_path ; s_file = GetFileName( inputfilename, s_path, s_ext );
-  TString stmp      = Form("outMaskPtn_TB_%dR%d_GeV.txt", (Int_t)energy, (Int_t)(energy*10)%10 );
-  TString s_maskptn = Form("%s/hotpixel_TB/%s",s_path.Data(),stmp.Data());
-  vector<pair<Int_t,Int_t>> vmask[nchip];
-  cout<< "Load hot pixels from "<< s_maskptn.Data() <<"." <<endl;
-  for(Int_t ich=0; ich<nchip; ich++) vmask[ich] = mTowerHotPixels::get_hot_pixels( s_maskptn.Data(), chipid2lane_lut.at( ich ) );
   
   
   //USER:ROBBIE
@@ -539,7 +537,19 @@ void Analyse_mTower(int run)
   std::cout<<endl<<"*** Reading file: "<<fileLocation<<endl<<endl<<"Ignore the following warning if there is one."<<endl;
   TFile* inputFile = TFile::Open(fileLocation);
   std::cout<<endl;
-  
+
+  //USER:HIROKI
+  //############################################################                                                                                                                                 
+  // get pixels to be masked                                                                                                                                                                    
+  //############################################################                                                                                                                                   
+  TString s_file, s_ext, s_path ; s_file = GetFileName (fileLocation, s_path, s_ext );
+  TString stmp      = Form("outMaskPtn_TB_%dR%d_GeV.txt", (Int_t)energy, (Int_t)(energy*10)%10 );
+  TString s_maskptn = Form("%s/hotpixel_TB/%s",s_path.Data(),stmp.Data());
+  vector<pair<Int_t,Int_t>> vmask[nchip];
+  cout<< "Load hot pixels from "<< s_maskptn.Data() <<"." <<endl;
+  for(Int_t ich=0; ich<nchip; ich++) vmask[ich] = mTowerHotPixels::get_hot_pixels( s_maskptn.Data(), chipid2lane_lut.at( ich ) );
+
+  //USER:ROBBIE
   inputFile->cd(); //set to current directory
   
   //get the tree
@@ -605,8 +615,21 @@ void Analyse_mTower(int run)
   
   //USER:HIROKI
   TTree* outtree = new TTree("tree","Event Selection");
-
+  Int_t     out_event         ;
+  Int_t     out_runNumber     ;
+  Int_t     out_nHitsTot      ;
+  Int_t     out_nClustersTot  ;
+  Int_t     out_status        ;
+  Double_t  out_showerX       ;
+  Double_t  out_showerY       ;
+  
   //USER:ROBBIE
+
+  TTree* prepreparedtree = new TTree("prepreparedselections","Pre-prepared Event Selections");
+  Int_t  prepreparedEvent;
+  Int_t  prepreparedHiroki;
+  Int_t  prepreparedRobbie;
+
   if (CT) //if CT, create the branches of the tree
     {
       eventNumberNew = -1;
@@ -621,13 +644,7 @@ void Analyse_mTower(int run)
       //Frames.Branch("row",&vrow);
 
       //USER:HIROKI
-      Int_t     out_event         ;
-      Int_t     out_runNumber     ;
-      Int_t     out_nHitsTot      ;
-      Int_t     out_nClustersTot  ;
-      Int_t     out_status        ;
-      Double_t  out_showerX       ;
-      Double_t  out_showerY       ;
+
       outtree->Branch("event"          , &out_event        ,"out_event/I"         );
       outtree->Branch("runNumber"      , &out_runNumber    ,"out_runNumber/I"     );
       outtree->Branch("nHitsTot"       , &out_nHitsTot     ,"out_nHitsTot/I"      );
@@ -636,6 +653,9 @@ void Analyse_mTower(int run)
       outtree->Branch("showerX"        , &out_showerX      ,"out_showerX/D"       );
       outtree->Branch("showerY"        , &out_showerY      ,"out_showerY/D"       );
       //USER:ROBBIE
+      prepreparedtree->Branch("event", &prepreparedEvent, "event/I");
+      prepreparedtree->Branch("HirokiStatus", &prepreparedHiroki, "HirokiStatus/I");
+      prepreparedtree->Branch("RobbieStatus", &prepreparedRobbie, "RobbieStatus/I");
     }
   else //else delete the file again. This making and deleting is needed because Frames can not be created in an if statement.
     {
@@ -693,8 +713,12 @@ void Analyse_mTower(int run)
       maxEvent = 100;
     }
 
+  Bool_t isFlushTree = kFALSE ;
+
   for (int event = minEvent; event < maxEvent; event++)
+    //for (int event = minEvent; event < 1000; event++)
     {
+      prepreparedEvent = event;
       frames->GetEntry(event);
       if(( event %  10000 == 0) && DB) cout<<"event = "<< event <<endl;
 
@@ -705,6 +729,21 @@ void Analyse_mTower(int run)
 	}
 
       //USER:HIROKI
+      Double_t  nHitsTotNew    [nla] = {0};
+      Double_t  nClustersTotNew[nla] = {0};
+      mcellsBulk.clear(); htmpBulk->Reset("ICESM");
+      mcellsLim.clear() ; htmpLim ->Reset("ICESM");
+      
+      //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+      // check inclination parameter exists
+      //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+      UInt_t runPeriod = ( runNumber < 1413 )? 0 : 1 ;
+      if(runPeriod >= parinc.size() ){ 
+	if (DB) cerr<<" === wrong run number ===  or  === failure on loading inclination parameter ===" <<endl; 
+	return; 
+      }
+      
+
       //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *                                                                                                                                                              
       // check event status                                                                                                                                                                                                          
       //* * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -739,9 +778,9 @@ void Analyse_mTower(int run)
       TObjArray* hitList = currentEvent->getHits();
       if (DB)
 	{
-	  std::cout<<endl<<"(DB) Run: "<<runNumber<<", event: "<<event<<"/"<<nEvents-1<<", number of hits: "<<nHits;
+	  if (DB) std::cout<<endl<<"(DB) Run: "<<runNumber<<", event: "<<event<<"/"<<nEvents-1<<", number of hits: "<<nHits;
 	  if (UND) std::cout<<", original event number: "<<eventNumberOriginal;
-	  std::cout<<endl<<"(DB) Loop over hits in event "<<event<<" to add hits to hitlist and apply extra mask"<<endl;
+	  if (DB) std::cout<<endl<<"(DB) Loop over hits in event "<<event<<" to add hits to hitlist and apply extra mask"<<endl;
 	}
 
       int nHitsMasked = 0; //number of extra hits masked
@@ -751,7 +790,7 @@ void Analyse_mTower(int run)
 	  Int_t lane = vlane->at(hit);
 	  Int_t col = vcolumn->at(hit);
 	  Int_t row = vrow->at(hit);
-	  Int_t chipid  = lane2chipid_lut.at( lane );
+	  Int_t chipid  = lane2chipidrobbie_lut.at( lane );
 	  if (hMaskPtn->GetBinContent(lane-laneOffset+1,col+1,row+1) == 0) //extra masking
 	    {
  	      currentHit->setCoordinates(lane, col, row);
@@ -781,11 +820,11 @@ void Analyse_mTower(int run)
 	  double meanRow[maxNChips] = {0.0};
 	  double mean2Row[maxNChips] = {0.0};
 	  int nHitsPerLane[maxNChips]={0};
-	  mTowerChip* hitsInChip[maxNChips];
+	  mTowerChipRobbie* hitsInChip[maxNChips];
 	  vector<vector<int>> hitsInLayer(maxNChips/2, vector<int>{});
 	  for (int l = 0; l<maxNChips ; l++)
 	    {
-	      hitsInChip[l] = new mTowerChip(l);
+	      hitsInChip[l] = new mTowerChipRobbie(l);
 	      hitsInChip[l]->setLane(l+laneOffset);
 	    }
 
@@ -807,7 +846,7 @@ void Analyse_mTower(int run)
 		  mean2Col[lane-laneOffset] += column*column;
 		  meanRow[lane-laneOffset] += row;
 		  mean2Row[lane-laneOffset] += row*row;
-		  hitsInLayer[lane2layer_lut.at(lane)].push_back(hit);
+		  hitsInLayer[lane2layerrobbie_lut.at(lane)].push_back(hit);
 		  hitsInChip[lane-laneOffset]->AddHit(currentHit);
 		}
 	      else
@@ -853,11 +892,11 @@ void Analyse_mTower(int run)
 	      if (hitsInChip[l]->getNHits()>0)
 		{
 		  //get the array of clusters
-		  hitsInChip[l]->Clusterize(); // This is the main clustering workhorse. You can find it in mTowerChip.cxx in the ./classes/ folder
+		  hitsInChip[l]->Clusterize(); // This is the main clustering workhorse. You can find it in mTowerChipRobbie.cxx in the ./classes/ folder
 		  TObjArray* clusterlist = hitsInChip[l]->getClusters();
 		  for (int c = 0;c<clusterlist->GetEntries();c++) //loop over clusters
 		    {
-		      mTowerCluster* cluster = (mTowerCluster*) clusterlist->At(c);
+		      mTowerClusterRobbie* cluster = (mTowerClusterRobbie*) clusterlist->At(c);
 		      if (cluster)
 			{
 			  nClusters++;
@@ -885,13 +924,13 @@ void Analyse_mTower(int run)
 
 			  vClusters_layer0[3].push_back(cluster->getNHits()); //clustersize
 			  hClusterSize[l]->Fill(cluster->getNHits());
-			  hClusterSizeLayer[lane2layer_lut.at(cluster->getLane())]->Fill(cluster->getNHits()); // Put both in one layer
+			  hClusterSizeLayer[lane2layerrobbie_lut.at(cluster->getLane())]->Fill(cluster->getNHits()); // Put both in one layer
 			  if (DB) std::cout<<"(DB) made it to end of if(cluster)"<<endl;
 			}
 		    }
 		}
 	      hNClusters[l]->Fill(nClusters);
-	      hNClustersLayer[lane2layer_lut.at(l+laneOffset)]->Fill(nClusters);
+	      hNClustersLayer[lane2layerrobbie_lut.at(l+laneOffset)]->Fill(nClusters);
 	      if (DB) std::cout<<"(DB) made it to end of layer 0"<<endl;
 	    }
 	  
@@ -906,7 +945,7 @@ void Analyse_mTower(int run)
 		  TObjArray* clusterlist = hitsInChip[l]->getClusters();
 		  for (int c = 0;c<clusterlist->GetEntries();c++) //loop over clusters
 		    {
-		      mTowerCluster* cluster = (mTowerCluster*) clusterlist->At(c);
+		      mTowerClusterRobbie* cluster = (mTowerClusterRobbie*) clusterlist->At(c);
 		      if (cluster)
 			{
 			  nClusters_layer1++;
@@ -933,13 +972,13 @@ void Analyse_mTower(int run)
 			  vClusters_layer1[2].push_back(meanY); //meanY
 			  vClusters_layer1[3].push_back(cluster->getNHits()); //clustersize
 			  hClusterSize[l]->Fill(cluster->getNHits());
-			  hClusterSizeLayer[lane2layer_lut.at(l+laneOffset)]->Fill(cluster->getNHits()); // Put both in one layer
+			  hClusterSizeLayer[lane2layerrobbie_lut.at(l+laneOffset)]->Fill(cluster->getNHits()); // Put both in one layer
 			  if (DB) std::cout<<"(DB) end of clustering"<<endl;
 			}
 		    }
 		}
 	      hNClusters[l]->Fill(nClusters_layer1);
-	      hNClustersLayer[lane2layer_lut.at(l+laneOffset)]->Fill(nClusters_layer1);
+	      hNClustersLayer[lane2layerrobbie_lut.at(l+laneOffset)]->Fill(nClusters_layer1);
 	      hNClustersLayer0v1->Fill(nClusters, nClusters_layer1);
 	      if (DB) std::cout<<"(DB) end of fillin cluster info"<<endl;
 	    }
@@ -954,7 +993,7 @@ void Analyse_mTower(int run)
 		  TObjArray* clusterlist = hitsInChip[l]->getClusters();
 		  for (int c = 0;c<clusterlist->GetEntries();c++) //loop over clusters
 		    {
-		      mTowerCluster* cluster = (mTowerCluster*) clusterlist->At(c);
+		      mTowerClusterRobbie* cluster = (mTowerClusterRobbie*) clusterlist->At(c);
 		      if (cluster)
 			{
 			  nClusters_layer2++;
@@ -983,14 +1022,14 @@ void Analyse_mTower(int run)
 
 			  hClusterSize[l]->Fill(cluster->getNHits());
 			  if (DB) std::cout<<"(DB) got this far."<<endl;
-			  hClusterSizeLayer[lane2layer_lut.at(l+laneOffset)]->Fill(cluster->getNHits()); // Put both in one layer
+			  hClusterSizeLayer[lane2layerrobbie_lut.at(l+laneOffset)]->Fill(cluster->getNHits()); // Put both in one layer
 			  if (DB) std::cout<<"(DB) got further."<<endl;
 			  if (DB) std::cout<<"(DB) end of clustering"<<endl;
 			}
 		    }
 		}
 	      hNClusters[l]->Fill(nClusters_layer2);
-	      hNClustersLayer[lane2layer_lut.at(l+laneOffset)]->Fill(nClusters_layer2);
+	      hNClustersLayer[lane2layerrobbie_lut.at(l+laneOffset)]->Fill(nClusters_layer2);
 	      hNClustersLayer0v1->Fill(nClusters, nClusters_layer2);
 	      if (DB) std::cout<<"(DB) end of fillin cluster info"<<endl;
 	    }
@@ -1211,6 +1250,12 @@ void Analyse_mTower(int run)
 	    std::cout << "WARNING WARNING WARNING: Event " << eventIndex << " was ACCEPTED despite being outside the 'signal' range, with " << nHits << " hits." << endl;
 	  }
 
+	  if (eventRejected) {
+	    prepreparedRobbie = 0;
+	  } else {
+	    prepreparedRobbie = 1;
+	  }
+
 	  if (!(eventRejected))
 	    {
 	      if (DB) std::cout << "Filling histograms" << endl;
@@ -1357,7 +1402,7 @@ void Analyse_mTower(int run)
       // pileup suspicious event (stage1: Bulk)                                                                                                                                                                                 
       //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *                                                                                                                                                         
       //============================================================                                                                                                                                                          
-      cerr<<"=================================================="<<endl;
+      if (DB) cerr<<"=================================================="<<endl;
       vector<tuple<Int_t, Double_t, Double_t, Int_t>> vShowerBulk ;
       vShowerBulk.clear();
       {//FJ start                                                                                                                                                                                                          
@@ -1386,16 +1431,16 @@ void Analyse_mTower(int run)
 	vector<PseudoJet> jets = sorted_by_pt(cs.inclusive_jets());
 	
 	// print the jets                                                                                                                                                                                            
-	cerr <<"event "<< iev <<"  (Bulk), "<< nHitsTotNew[nla-1] << endl;
+	if (DB) cerr <<"event "<< event <<"  (Bulk), "<< nHitsTotNew[nla-1] << endl;
 	for (unsigned i = 0; i < jets.size(); i++) {
-	  cerr << "jet " <<setw(3)<< i << ": "
+	  if (DB) cerr << "jet " <<setw(3)<< i << ": "
 	       << "  pt: "<< setw(8) << jets[i].pt()
 	       << "  x : "<< setw(8) << 10.*jets[i].rap()
 	       << "  y : "<< setw(8) << 10.*jets[i].phi_std()
 	       << endl;
 	  vector<PseudoJet> constituents = jets[i].constituents();
 	  for (unsigned j = 0; j < constituents.size(); j++)
-	    cerr << "    constituent " <<setw(3)<< j << "'s "
+	    if (DB) cerr << "    constituent " <<setw(3)<< j << "'s "
 		 << "  pt: "<< setw(8) << constituents[j].pt()
 		 << "  x : "<< setw(8) << 10.*constituents[j].rap()
 		 << "  y : "<< setw(8) << 10.*constituents[j].phi_std()
@@ -1415,7 +1460,7 @@ void Analyse_mTower(int run)
       
       // print shower list                                                                                                                                                                                         
       for( UInt_t i=0; i<vShowerBulk.size(); i++)
-	cerr
+	if (DB) cerr
 	  <<setw(3) << get<0>(vShowerBulk.at(i))
 	  <<setw(3) << get<3>(vShowerBulk.at(i))
 	  <<setw(20)<< get<1>(vShowerBulk.at(i))
@@ -1469,7 +1514,7 @@ void Analyse_mTower(int run)
 	  if( status1 ) hBulkSize1->Fill( a, n );
 	}
       }
-      cerr<<"=================================================="<<endl;
+      if (DB) cerr<<"=================================================="<<endl;
       
       //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *                                                                                                                    
       // set tree variables                                                                                                                                                                         
@@ -1514,7 +1559,7 @@ void Analyse_mTower(int run)
 	      if( rc > thDistBulk ) continue;
 	      nclus++;
 	      
-	      //cerr << iev <<" "<< rc <<endl;                                                                                                                                                              
+	      //if (DB) cerr << iev <<" "<< rc <<endl;                                                                                                                                                              
 	      
 	      isSelect &= ( rc < 2.*wBinBulk );
 	      isSelect &= (( ila==0 && nclus>1 )? kFALSE : kTRUE );
@@ -1547,10 +1592,13 @@ void Analyse_mTower(int run)
 	  hNhitFinal [i]->Fill( nHitsTotNew    [i] );
 	  hNclusFinal[i]->Fill( nClustersTotNew[i] );
 	}
-	//if(nHitsTotNew[3] > 1900) cout<<iev<<endl;                                                                                                                                                                   
+	//if(nHitsTotNew[3] > 1900) cout<<iev<<endl;                                                                                                                            
+	prepreparedHiroki = 1;
+      } else {
+	prepreparedHiroki = 0;
       }
       
-      cerr<<endl;
+      if (DB) cerr<<endl;
 
 
     //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *                                                                                                                                                   
@@ -1558,16 +1606,18 @@ void Analyse_mTower(int run)
     //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *                                                                                                                                                
     if(isSelect) out_status++;
     outtree->Fill();
-    if( isFlushTree ){ outtree->AutoSave("FlushBaskets") ; isFlushTree = kFALSE; }
-    
+    prepreparedtree->Fill();
+    if( isFlushTree ){ outtree->AutoSave("FlushBaskets") ; outtree->AutoSave("FlushBaskets") ; isFlushTree = kFALSE; }
+
+
     //USER:ROBBIE  
     delete currentEvent;
     } //end of loop over events
 
   //USER:HIROKI
   Double_t eff = 1. - (Double_t)eff_den1/(Double_t)eff_neu1 ;
-  cout<<"efficiency(Bulk) = "<< /*setprecision(2) <<*/ eff << endl;
-  cout.copyfmt( oldState );
+  if (DB) cout<<"efficiency(Bulk) = "<< /*setprecision(2) <<*/ eff << endl;
+  if (DB) cout.copyfmt( oldState );
   
   //############################################################                                                                                                                                                       
   // write output objects                                                                                                                                                                                                       
@@ -1599,8 +1649,8 @@ void Analyse_mTower(int run)
 	}
     } //if HP
 
-  std::cout<<"*** There were "<<nReadEvents<<" events read by the event loop"<<endl;
-  std::cout<<"*** There were "<<nEmptyEvents<<" events with less than 1 hits"<<endl;
+  if (DB) std::cout<<"*** There were "<<nReadEvents<<" events read by the event loop"<<endl;
+  if (DB) std::cout<<"*** There were "<<nEmptyEvents<<" events with less than 1 hits"<<endl;
     
   //----------------------------------------------------------------------------------
  
@@ -1609,7 +1659,7 @@ void Analyse_mTower(int run)
   outputFile->Write();
   outputFile->Close();
   
-  std::cout<<" I managed to get all the way to saving the tree!";
+  if (DB) std::cout<<" I managed to get all the way to saving the tree!";
 
   if (CT)
     {

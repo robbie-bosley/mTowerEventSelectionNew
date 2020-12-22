@@ -1,12 +1,12 @@
-#ifndef MTOWERCLUSTER_H
-#define MTOWERCLUSTER_H
+#ifndef MTOWERCLUSTERROBBIE_H
+#define MTOWERCLUSTERROBBIE_H
 
 #include "TObjArray.h"
 #include "mTowerHit.h"
 
 //Class cluster for the mTower
 
-class mTowerCluster : public TObject
+class mTowerClusterRobbie : public TObject
 {
 
  protected:
@@ -16,14 +16,14 @@ class mTowerCluster : public TObject
   
 
  public:
-  mTowerCluster();
-  mTowerCluster(int i);
-  virtual ~mTowerCluster();
+  mTowerClusterRobbie();
+  mTowerClusterRobbie(int i);
+  virtual ~mTowerClusterRobbie();
 
   int getNHits() {return hits->GetEntries();}
   TObjArray* getHits() {return hits;}
   void AddHit(mTowerHit* hit);
-  void AddCluster(mTowerCluster* cluster);
+  void AddCluster(mTowerClusterRobbie* cluster);
   void setId(int i) {id = i;}
   int getId() {return id;}
   void setLane(int l) {lane = l;}
@@ -31,7 +31,7 @@ class mTowerCluster : public TObject
   double getMeanRow();
   double getMeanColumn();
 
-  ClassDef(mTowerCluster,1) //mTower cluster
+  ClassDef(mTowerClusterRobbie,1) //mTower cluster
     
 };
 

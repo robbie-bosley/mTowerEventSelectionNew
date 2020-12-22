@@ -3,23 +3,23 @@
 
 #include "TObjArray.h"
 #include "mTowerHit.h"
-#include "mTowerCluster.h"
+#include "mTowerClusterRobbie.h"
 
 //Class chip for the mTower (collection of hits in one chip)
 
-class mTowerChip : public TObject
+class mTowerChipRobbie : public TObject
 {
 
  protected:
   int lane; //lane of the chip
   TObjArray* hits; //of type mTowerHit
-  TObjArray* clusters; //of type mTowerCluster
+  TObjArray* clusters; //of type mTowerClusterRobbie
   
 
  public:
-  mTowerChip();
-  mTowerChip(int l);
-  virtual ~mTowerChip();
+  mTowerChipRobbie();
+  mTowerChipRobbie(int l);
+  virtual ~mTowerChipRobbie();
 
   int getNHits() {return hits->GetEntries();}
   TObjArray* getHits() {return hits;}
@@ -31,7 +31,7 @@ class mTowerChip : public TObject
   void setLane(int l) {lane = l;}
   int getLane() {return lane;}
   
-  ClassDef(mTowerChip,1) //mTower chip
+  ClassDef(mTowerChipRobbie,1) //mTower chip
     
 };
 
